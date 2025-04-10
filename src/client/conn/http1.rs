@@ -247,6 +247,7 @@ where
     ///
     /// See [the `upgrade` module](crate::upgrade) for more.
     pub fn with_upgrades(self) -> upgrades::UpgradeableConnection<T, B> {
+        info!(line = line!(), file = file!(), "with_upgrades $$$$$$$$$$$");
         upgrades::UpgradeableConnection { inner: Some(self) }
     }
 }
