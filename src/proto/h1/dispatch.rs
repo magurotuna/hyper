@@ -132,6 +132,7 @@ where
                 info!(
                     line = line!(),
                     file = file!(),
+                    waker_ptr = cx.waker().data(),
                     "poll_catch ok @@@@@@@@@@@@@@@@@@@@"
                 );
                 Poll::Ready(Ok(ds))
@@ -163,16 +164,27 @@ where
         if self.is_done() {
             info!(line = line!(), file = file!(), "is_done @@@@@");
             if let Some(pending) = self.conn.pending_upgrade() {
-                info!(line = line!(), file = file!(), "pending_upgrade @@@@@");
+                info!(
+                    line = line!(),
+                    file = file!(),
+                    waker_ptr = cx.waker().data(),
+                    "pending_upgrade @@@@@"
+                );
                 self.conn.take_error()?;
                 return Poll::Ready(Ok(Dispatched::Upgrade(pending)));
             } else if should_shutdown {
-                info!(line = line!(), file = file!(), "shutting down @@@@@");
+                info!(
+                    line = line!(),
+                    file = file!(),
+                    waker_ptr = cx.waker().data(),
+                    "shutting down @@@@@"
+                );
                 ready!(self.conn.poll_shutdown(cx)).map_err(crate::Error::new_shutdown)?;
             }
             info!(
                 line = line!(),
                 file = file!(),
+                waker_ptr = cx.waker().data(),
                 "pending_upgrade or shutdown is completed @@@@@"
             );
             self.conn.take_error()?;
@@ -492,7 +504,8 @@ where
             info!(
                 line = line!(),
                 file = file!(),
-                "😈 Dispatcher::poll shutdown @@@@@@@@@@@@@@@@@@@@"
+                waker_ptr = cx.waker().data(),
+                "😈 Dispatcher::poll @@@@@@@@@@@@@@@@@@@@"
             );
             self.polled = true;
         }
@@ -502,6 +515,7 @@ where
                 info!(
                     line = line!(),
                     file = file!(),
+                    waker_ptr = cx.waker().data(),
                     "Dispatcher::poll shutdown @@@@@@@@@@@@@@@@@@@@"
                 );
                 Poll::Ready(x)
