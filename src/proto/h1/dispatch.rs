@@ -143,6 +143,7 @@ where
         should_shutdown: bool,
     ) -> Poll<crate::Result<Dispatched>> {
         T::update_date();
+        info!(line = line!(), file = file!(), "poll_inner started @@@@@");
 
         ready!(self.poll_loop(cx))?;
 
@@ -156,7 +157,11 @@ where
                 info!(line = line!(), file = file!(), "shutting down @@@@@");
                 ready!(self.conn.poll_shutdown(cx)).map_err(crate::Error::new_shutdown)?;
             }
-            info!(line = line!(), file = file!(), "pending_upgrade or shutdown is completed @@@@@");
+            info!(
+                line = line!(),
+                file = file!(),
+                "pending_upgrade or shutdown is completed @@@@@"
+            );
             self.conn.take_error()?;
             Poll::Ready(Ok(Dispatched::Shutdown))
         } else {
