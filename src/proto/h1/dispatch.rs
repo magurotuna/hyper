@@ -25,6 +25,7 @@ pub(crate) struct Dispatcher<D, Bs: Body, I, T> {
     body_tx: Option<crate::body::Sender>,
     body_rx: Pin<Box<Option<Bs>>>,
     is_closing: bool,
+    polled: bool,
 }
 
 pub(crate) trait Dispatch {
@@ -84,6 +85,7 @@ where
             body_tx: None,
             body_rx: Box::pin(None),
             is_closing: false,
+            polled: false,
         }
     }
 
@@ -486,6 +488,15 @@ where
 
     #[inline]
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        if !self.polled {
+            info!(
+                line = line!(),
+                file = file!(),
+                "😈 Dispatcher::poll shutdown @@@@@@@@@@@@@@@@@@@@"
+            );
+            self.polled = true;
+        }
+
         match self.poll_catch(cx, true) {
             Poll::Ready(x) => {
                 info!(

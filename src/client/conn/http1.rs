@@ -263,7 +263,10 @@ where
     /// See [the `upgrade` module](crate::upgrade) for more.
     pub fn with_upgrades(self) -> upgrades::UpgradeableConnection<T, B> {
         info!(line = line!(), file = file!(), "with_upgrades $$$$$$$$$$$");
-        upgrades::UpgradeableConnection { inner: Some(self) }
+        upgrades::UpgradeableConnection {
+            inner: Some(self),
+            polled: false,
+        }
     }
 }
 
@@ -593,6 +596,7 @@ mod upgrades {
         B::Error: Into<Box<dyn StdError + Send + Sync>>,
     {
         pub(super) inner: Option<Connection<T, B>>,
+        pub(super) polled: bool,
     }
 
     impl<I, B> Future for UpgradeableConnection<I, B>
@@ -605,6 +609,15 @@ mod upgrades {
         type Output = crate::Result<()>;
 
         fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+            if !self.polled {
+                info!(
+                    line = line!(),
+                    file = file!(),
+                    "😈 UpgradeableConnection::poll @@@@@@@@@@@@@@@@@@@@"
+                );
+                self.polled = true;
+            }
+
             match ready!(Pin::new(&mut self.inner.as_mut().unwrap().inner).poll(cx)) {
                 Ok(proto::Dispatched::Shutdown) => {
                     info!(
