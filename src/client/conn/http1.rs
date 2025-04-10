@@ -615,11 +615,23 @@ mod upgrades {
                     Poll::Ready(Ok(()))
                 }
                 Ok(proto::Dispatched::Upgrade(pending)) => {
+                    info!(
+                        line = line!(),
+                        file = file!(),
+                        "UpgradeableConnection::poll upgrade @@@@@@@@@@@@@@@@@@@@"
+                    );
                     let Parts { io, read_buf } = self.inner.take().unwrap().into_parts();
                     pending.fulfill(Upgraded::new(io, read_buf));
                     Poll::Ready(Ok(()))
                 }
-                Err(e) => Poll::Ready(Err(e)),
+                Err(e) => {
+                    info!(
+                        line = line!(),
+                        file = file!(),
+                        "UpgradeableConnection::poll error @@@@@@@@@@@@@@@@@@@@"
+                    );
+                    Poll::Ready(Err(e))
+                }
             }
         }
     }
