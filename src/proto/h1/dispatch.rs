@@ -143,7 +143,6 @@ where
         should_shutdown: bool,
     ) -> Poll<crate::Result<Dispatched>> {
         T::update_date();
-        info!(line = line!(), file = file!(), "poll_inner started @@@@@");
 
         ready!(self.poll_loop(cx))?;
 
