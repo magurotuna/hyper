@@ -125,18 +125,28 @@ where
         cx: &mut Context<'_>,
         should_shutdown: bool,
     ) -> Poll<crate::Result<Dispatched>> {
-        Poll::Ready(ready!(self.poll_inner(cx, should_shutdown)).or_else(|e| {
-            // Be sure to alert a streaming body of the failure.
-            if let Some(mut body) = self.body_tx.take() {
-                body.send_error(crate::Error::new_body("connection error"));
+        match ready!(self.poll_inner(cx, should_shutdown)) {
+            Ok(ds) => {
+                info!(
+                    line = line!(),
+                    file = file!(),
+                    "poll_catch ok @@@@@@@@@@@@@@@@@@@@"
+                );
+                Poll::Ready(Ok(ds))
             }
-            // An error means we're shutting down either way.
-            // We just try to give the error to the user,
-            // and close the connection with an Ok. If we
-            // cannot give it to the user, then return the Err.
-            self.dispatch.recv_msg(Err(e))?;
-            Ok(Dispatched::Shutdown)
-        }))
+            Err(e) => {
+                // Be sure to alert a streaming body of the failure.
+                if let Some(mut body) = self.body_tx.take() {
+                    body.send_error(crate::Error::new_body("connection error"));
+                }
+                // An error means we're shutting down either way.
+                // We just try to give the error to the user,
+                // and close the connection with an Ok. If we
+                // cannot give it to the user, then return the Err.
+                self.dispatch.recv_msg(Err(e))?;
+                Poll::Ready(Ok(Dispatched::Shutdown))
+            }
+        }
     }
 
     fn poll_inner(
@@ -476,7 +486,17 @@ where
 
     #[inline]
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        self.poll_catch(cx, true)
+        match self.poll_catch(cx, true) {
+            Poll::Ready(x) => {
+                info!(
+                    line = line!(),
+                    file = file!(),
+                    "Dispatcher::poll shutdown @@@@@@@@@@@@@@@@@@@@"
+                );
+                Poll::Ready(x)
+            }
+            Poll::Pending => Poll::Pending,
+        }
     }
 }
 
