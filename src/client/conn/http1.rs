@@ -288,7 +288,14 @@ where
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match ready!(Pin::new(&mut self.inner).poll(cx))? {
-            proto::Dispatched::Shutdown => Poll::Ready(Ok(())),
+            proto::Dispatched::Shutdown => {
+                info!(
+                    line = line!(),
+                    file = file!(),
+                    "Connection::poll shutdown @@@@@@@@@@@@@@@@@@@@"
+                );
+                Poll::Ready(Ok(()))
+            }
             proto::Dispatched::Upgrade(pending) => {
                 // With no `Send` bound on `I`, we can't try to do
                 // upgrades here. In case a user was trying to use
@@ -599,7 +606,14 @@ mod upgrades {
 
         fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
             match ready!(Pin::new(&mut self.inner.as_mut().unwrap().inner).poll(cx)) {
-                Ok(proto::Dispatched::Shutdown) => Poll::Ready(Ok(())),
+                Ok(proto::Dispatched::Shutdown) => {
+                    info!(
+                        line = line!(),
+                        file = file!(),
+                        "UpgradeableConnection::poll shutdown @@@@@@@@@@@@@@@@@@@@"
+                    );
+                    Poll::Ready(Ok(()))
+                }
                 Ok(proto::Dispatched::Upgrade(pending)) => {
                     let Parts { io, read_buf } = self.inner.take().unwrap().into_parts();
                     pending.fulfill(Upgraded::new(io, read_buf));
