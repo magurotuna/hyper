@@ -504,6 +504,7 @@ where
             info!(
                 line = line!(),
                 file = file!(),
+                backtrace = %std::backtrace::Backtrace::force_capture(),
                 waker_ptr = format!("{:p}", cx.waker().data()),
                 "😈 Dispatcher::poll @@@@@@@@@@@@@@@@@@@@"
             );
