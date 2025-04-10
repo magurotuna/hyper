@@ -613,7 +613,7 @@ mod upgrades {
                 info!(
                     line = line!(),
                     file = file!(),
-                    waker_ptr = cx.waker().data(),
+                    waker_ptr = format!("{:p}", cx.waker().data()),
                     "😈 UpgradeableConnection::poll @@@@@@@@@@@@@@@@@@@@"
                 );
                 self.polled = true;
@@ -624,7 +624,7 @@ mod upgrades {
                     info!(
                         line = line!(),
                         file = file!(),
-                        waker_ptr = cx.waker().data(),
+                        waker_ptr = format!("{:p}", cx.waker().data()),
                         "UpgradeableConnection::poll shutdown @@@@@@@@@@@@@@@@@@@@"
                     );
                     Poll::Ready(Ok(()))
@@ -633,7 +633,7 @@ mod upgrades {
                     info!(
                         line = line!(),
                         file = file!(),
-                        waker_ptr = cx.waker().data(),
+                        waker_ptr = format!("{:p}", cx.waker().data()),
                         "UpgradeableConnection::poll upgrade @@@@@@@@@@@@@@@@@@@@"
                     );
                     let Parts { io, read_buf } = self.inner.take().unwrap().into_parts();
@@ -644,7 +644,7 @@ mod upgrades {
                     info!(
                         line = line!(),
                         file = file!(),
-                        waker_ptr = cx.waker().data(),
+                        waker_ptr = format!("{:p}", cx.waker().data()),
                         "UpgradeableConnection::poll error @@@@@@@@@@@@@@@@@@@@"
                     );
                     Poll::Ready(Err(e))

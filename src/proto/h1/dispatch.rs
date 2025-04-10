@@ -132,7 +132,7 @@ where
                 info!(
                     line = line!(),
                     file = file!(),
-                    waker_ptr = cx.waker().data(),
+                    waker_ptr = format!("{:p}", cx.waker().data()),
                     "poll_catch ok @@@@@@@@@@@@@@@@@@@@"
                 );
                 Poll::Ready(Ok(ds))
@@ -167,7 +167,7 @@ where
                 info!(
                     line = line!(),
                     file = file!(),
-                    waker_ptr = cx.waker().data(),
+                    waker_ptr = format!("{:p}", cx.waker().data()),
                     "pending_upgrade @@@@@"
                 );
                 self.conn.take_error()?;
@@ -176,7 +176,7 @@ where
                 info!(
                     line = line!(),
                     file = file!(),
-                    waker_ptr = cx.waker().data(),
+                    waker_ptr = format!("{:p}", cx.waker().data()),
                     "shutting down @@@@@"
                 );
                 ready!(self.conn.poll_shutdown(cx)).map_err(crate::Error::new_shutdown)?;
@@ -184,7 +184,7 @@ where
             info!(
                 line = line!(),
                 file = file!(),
-                waker_ptr = cx.waker().data(),
+                waker_ptr = format!("{:p}", cx.waker().data()),
                 "pending_upgrade or shutdown is completed @@@@@"
             );
             self.conn.take_error()?;
@@ -504,7 +504,7 @@ where
             info!(
                 line = line!(),
                 file = file!(),
-                waker_ptr = cx.waker().data(),
+                waker_ptr = format!("{:p}", cx.waker().data()),
                 "😈 Dispatcher::poll @@@@@@@@@@@@@@@@@@@@"
             );
             self.polled = true;
@@ -515,7 +515,7 @@ where
                 info!(
                     line = line!(),
                     file = file!(),
-                    waker_ptr = cx.waker().data(),
+                    waker_ptr = format!("{:p}", cx.waker().data()),
                     "Dispatcher::poll shutdown @@@@@@@@@@@@@@@@@@@@"
                 );
                 Poll::Ready(x)
